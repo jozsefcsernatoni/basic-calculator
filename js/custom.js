@@ -2,7 +2,6 @@ let number1="";
 let number2="";
 let operator="";
 let firstSession=true;
-let shouldOperate=false;
 
 //operational functions
 function add(usrNumber1,usrNumber2){
@@ -65,26 +64,37 @@ function separate(str){
     }
 
 
-    else if(operands.includes(str) && !shouldOperate){
+    else if(operands.includes(str) && firstSession){
         console.log(str);
         operator=str;
-        shouldOperate=true;
         if(firstSession){
                     firstSession=false;
         }
     }
-    else if(operands.includes(str) && shouldOperate){
-        number1=operate(number1,operator,number2); 
+    else if(operands.includes(str) ){
+        equals();
         operator=str;
-        number2="";
-        if(firstSession) {shouldOperate=false;}
-        display.textContent=number1;
     }
+    else if(str==="="){
+        if(!(number1==="") && !(number2==="") && !(operator==="")){
+            equals();
+        } else if (!(number1==="")){
+            display.textContent=number1;
+            number1="";
+        }
 
+    }
     else if(str==="C"){
         number1="";
         number2="";
         operator="";
         display.textContent=number1;
+        firstSession=true;
     }
+}
+
+function equals(){
+    number1=operate(number1,operator,number2); 
+    number2="";
+    display.textContent=number1;
 }
