@@ -1,6 +1,8 @@
-let number1;
-let number2;
-let operator;
+let number1="";
+let number2="";
+let operator="";
+let firstSession=true;
+let shouldOperate=false;
 
 //operational functions
 function add(usrNumber1,usrNumber2){
@@ -20,17 +22,19 @@ function divide(usrNumber1,usrNumber2){
 }
 
 function operate(num1,op,num2){
+    num1=Number(num1);
+    num2=Number(num2);
     switch (op){
-        case "+": console.log(add(num1,num2));
+        case "+": return add(num1,num2);
         break;
     
-        case "-": console.log(subtract(num1,num2));
+        case "-": return subtract(num1,num2);
         break;
 
-        case "*": console.log(multiply(num1,num2));
+        case "*": return multiply(num1,num2);
         break;
 
-        case "/": console.log(divide(num1,num2));
+        case "/": return divide(num1,num2);
         break;
         }
 }
@@ -41,6 +45,46 @@ const display=document.querySelector(".display");
  for (let i=0;i<buttons.length;i++)
 {buttons[i].addEventListener("click", (e) => {
  
-  display.textContent+=e.target.value; 
+separate(e.target.value);
 })
+}
+
+//helper functions
+function separate(str){
+    const operands=["+","-","*","/"];
+    
+    
+    if(!isNaN(str)){
+        if( firstSession){
+            number1+=str;
+            display.textContent=number1;
+        } else{
+            number2+=str;
+            display.textContent=number2;
+        }
+    }
+
+
+    else if(operands.includes(str) && !shouldOperate){
+        console.log(str);
+        operator=str;
+        shouldOperate=true;
+        if(firstSession){
+                    firstSession=false;
+        }
+    }
+    else if(operands.includes(str) && shouldOperate){
+        number1=operate(number1,operator,number2); 
+        operator=str;
+        number2="";
+        if(firstSession) {shouldOperate=false;}
+        display.textContent=number1;
+    }
+
+    else if(str==="C"){
+        number1="";
+        number2="";
+        operator="";
+        display.textContent=number1;
+    }
 }
