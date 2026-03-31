@@ -3,6 +3,7 @@ let number2="";
 let operator="";
 let firstSession=true;
 let dotId;
+let critcalStop=false;
 
 //operational functions
 function add(usrNumber1,usrNumber2){
@@ -25,16 +26,16 @@ function operate(num1,op,num2){
     num1=Number(num1);
     num2=Number(num2);
     switch (op){
-        case "+": return add(num1,num2);
+        case "+": return showDigits(add(num1,num2));
         break;
     
-        case "-": return subtract(num1,num2);
+        case "-": return showDigits(subtract(num1,num2));
         break;
 
-        case "*": return multiply(num1,num2);
+        case "*": return showDigits(multiply(num1,num2));
         break;
 
-        case "/": return divide(num1,num2);
+        case "/": return showDigits(divide(num1,num2));
         break;
 }
 }
@@ -56,8 +57,8 @@ const display=document.querySelector(".display");
 function separate(str){
     const operands=["+","-","*","/"];
     
-    
-    if(!isNaN(str) || str==="."){
+    if(!critcalStop)
+    {if(!isNaN(str) || str==="."){
         if( firstSession){
             number1+=str;
             display.textContent=number1;
@@ -70,7 +71,7 @@ function separate(str){
 
     else if(operands.includes(str) && firstSession){
         operator=str;
-        buttons[dotId].disabled=false;
+        if(dotId) {buttons[dotId].disabled=false;}
         if(firstSession){
                     firstSession=false;
         }
@@ -78,7 +79,7 @@ function separate(str){
     else if(operands.includes(str) ){
         equals();
         operator=str;
-        buttons[dotId].disabled=false;
+        if(dotId) {buttons[dotId].disabled=false;}
     }
     else if(str==="="){
         if(!(number1==="") && !(number2==="") && !(operator==="")){
@@ -88,9 +89,16 @@ function separate(str){
             number1="";
         }
     }
+     else if(str==="B"){
+        if(firstSession){
+            number1=number1.slice(0,number1.length-1);
+            display.textContent=number1;
+            
+        }
+    }}
 
     
-    else if(str==="C"){
+    if(str==="C"){
         clear();
         display.textContent=number1;
     }
@@ -102,9 +110,9 @@ function equals(){
         display.textContent=number1;
         number2="";
         operator="";
-    } else {
+    } else if(number2==="0") {
         display.textContent="snarky error message";
-        clear();
+        critcalStop=true;
     }
     
 
@@ -115,6 +123,22 @@ function clear(){
         number2="";
         operator="";
         firstSession=true;
-        buttons[dotId].disabled=false;
+        if(dotId) {buttons[dotId].disabled=false;}
+        critcalStop=false;
         
+}
+
+function showDigits(nr,decimalPlaces=2){
+if((Number.isInteger(nr))){
+nr=nr+"";//conv to string
+let fullNumber=nr.split(".");
+return fullNumber[0];
+} else {
+    let resultFloat=nr.toFixed(decimalPlaces);
+    let fullNumber=resultFloat.split(".");
+    if(fullNumber[1]>0){
+        return resultFloat;
+    } else return fullNumber[0];
+}
+
 }
