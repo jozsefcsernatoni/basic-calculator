@@ -117,7 +117,7 @@ function clear(){
         displayContent("1234567890");
         display.focus();
         dot.disabled=false;
-        
+        firstDot=true;
 }
 
 function showDigits(nr,decimalPlaces=2){
@@ -144,10 +144,17 @@ function backSpace(){
             if(firstSession){
             number1=number1.slice(0,number1.length-1);
             displayContent(number1);
-            
+            if(!(number1.includes("."))){
+                dot.disabled=false;
+                firstDot=true;
+            }
         } else{
             number2=number2.slice(0,number2.length-1);
             displayContent(number2);
+            if(!(number2.includes("."))){
+                dot.disabled=false;
+                firstDot=true;
+            }
         }
 }
 
