@@ -2,7 +2,7 @@ let number1="";
 let number2="";
 let operator="";
 let firstSession=true;
-let dotId;
+let firstDot=true;
 let critcalStop=false;
 
 //operational functions
@@ -41,77 +41,67 @@ function operate(num1,op,num2){
 }
 
 //dom manipulation
-const buttons=document.querySelectorAll("button");
+const buttons=document.querySelectorAll("button:not(#dot)");
+const dot=document.querySelector("#dot");
+dot.addEventListener("click", (e) => {
+        separate(e.target.value); 
+        display.focus();  
+    })
 const display=document.querySelector(".display");
  for (let i=0;i<buttons.length;i++){
     buttons[i].addEventListener("click", (e) => {
-        separate(e.target.value);
-        if(e.target.value==="."){
-            e.target.disabled=true;
-            dotId=i;
-        }
+        separate(e.target.value);  
+        display.focus();   
     })
 }
 
+//keyboard support
+display.focus();
+display.addEventListener("keydown", function(e){
+    separate(e.key);
+})
+
+
 //helper functions
 function separate(str){
-    const operands=["+","-","*","/"];
-    
-    if(!critcalStop)
-    {if(!isNaN(str) || str==="."){
-        if( firstSession){
-            number1+=str;
-            display.textContent=number1;
-        } else{
-            number2+=str;
-            display.textContent=number2;
-        }
-    }
+    str=str.toUpperCase();
+ console.log(str);   
+    if(!critcalStop){
+        switch(!isNaN(str) || str){
 
-
-    else if(operands.includes(str) && firstSession){
-        operator=str;
-        if(dotId) {buttons[dotId].disabled=false;}
-        if(firstSession){
-                    firstSession=false;
+            case true: processNumber(str);
+            break;
+            case ".": processDot(str);
+            break;
+            case "+":
+            case "-":
+            case "*":
+            case "/": processOperator(str);
+            break;
+            case "=": processEqual(str);
+            break;
+            case "B":backSpace();    
+            break;
         }
     }
-    else if(operands.includes(str) ){
-        equals();
-        operator=str;
-        if(dotId) {buttons[dotId].disabled=false;}
-    }
-    else if(str==="="){
-        if(!(number1==="") && !(number2==="") && !(operator==="")){
-            equals();
-        } else if (!(number1==="")){
-            display.textContent=number1;
-            number1="";
-        }
-    }
-     else if(str==="B"){
-        if(firstSession){
-            number1=number1.slice(0,number1.length-1);
-            display.textContent=number1;
-            
-        }
-    }}
-
-    
     if(str==="C"){
         clear();
-        display.textContent=number1;
     }
 }
 
+
+
 function equals(){
-    if(isFinite(operate(number1,operator,number2))){
+    if(isFinite(operate(number1,operator,number2)) &&!critcalStop){
         number1=operate(number1,operator,number2); 
-        display.textContent=number1;
+        displayContent(number1);
+        number1="";
         number2="";
         operator="";
+        firstSession=true;
+        dot.disabled=false;
     } else if(number2==="0") {
-        display.textContent="snarky error message";
+        displayContent("snarky error message");
         critcalStop=true;
     }
     
@@ -123,8 +113,10 @@ function clear(){
         number2="";
         operator="";
         firstSession=true;
-        if(dotId) {buttons[dotId].disabled=false;}
         critcalStop=false;
+        displayContent("1234567890");
+        display.focus();
+        dot.disabled=false;
         
 }
 
@@ -141,4 +133,71 @@ return fullNumber[0];
     } else return fullNumber[0];
 }
 
+}
+
+function displayContent(content){
+   
+        display.textContent=content;
+    }
+
+function backSpace(){
+            if(firstSession){
+            number1=number1.slice(0,number1.length-1);
+            displayContent(number1);
+            
+        } else{
+            number2=number2.slice(0,number2.length-1);
+            displayContent(number2);
+        }
+}
+
+function processNumber(str){
+        if(firstSession){
+            number1+=str;
+            displayContent(number1);
+            
+        } else{
+            number2+=str;
+            displayContent(number2);
+        }
+}
+function processDot(str){
+    if(firstSession){
+        if(!firstDot){
+            str="";
+        }
+        number1+=str;
+        displayContent(number1);
+        firstDot=false;
+        dot.disabled=true;
+        } else{
+            number2+=str;
+            displayContent(number2);
+            firstDot=false;
+            dot.disabled=true;
+        }
+
+}
+
+function processOperator(str){
+    operands=["+","-","*","/"];
+    if(operands.includes(str) && firstSession){
+        operator=str;
+        dot.disabled=false;
+
+        if(firstSession){
+                    firstSession=false;
+        }
+    }
+    else if(operands.includes(str) ){
+        equals();
+        operator=str;
+        dot.disabled=false;
+    }
+}
+
+function processEqual(str){
+if(!(number1==="") && !(number2==="") && !(operator==="")){
+            equals();
+        } 
 }
